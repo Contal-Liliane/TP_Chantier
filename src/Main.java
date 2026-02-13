@@ -1,35 +1,35 @@
 import java.util.*;
+import java.util.concurrent.Semaphore;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        // Liste des pièces à traiter
-        List<Piece> piecesPourElec = Collections.synchronizedList(new ArrayList<>());
-        List<Piece> piecesPourPlat = Collections.synchronizedList(new ArrayList<>());
+        Semaphore s = new Semaphore(0);
 
-        String[] noms = {"Cuisine", "Salon", "Chambre 1", "Chambre 2", "Salle de bain", "WC", "Garage", "Grenier", "Bureau", "Terrasse"};
-        for (String n : noms) {
-            Piece p = new Piece(n);
-            piecesPourElec.add(p);
-            piecesPourPlat.add(p);
+        List<Piece> aElectrifier = Collections.synchronizedList(new ArrayList<>());
+        List<Piece> aPlatrer = Collections.synchronizedList(new ArrayList<>());
+
+        List<Piece> maisonComplete = new ArrayList<>();
+        String[] noms = {"Cuisine", "Salon", "Chambre 1", "Chambre 2", "Salle de bain", "WC", "Garage", "Entrée", "Bureau", "Terrasse"};
+        for (String nom : noms) {
+            Piece p = new Piece(nom);
+            aElectrifier.add(p);
+            aPlatrer.add(p);
         }
 
-        Electricien[] elecs = {
-                new Electricien("Tod", piecesPourElec),
-                new Electricien("Tad", piecesPourElec),
-                new Electricien("Ted", piecesPourElec)
-        };
+        Electricien e1 = new Electricien("Tod", aElectrifier, s);
+        Electricien e2 = new Electricien("Tad", aElectrifier, s);
+        Electricien e3 = new Electricien("Ted", aElectrifier, s);
 
-        Platrier[] plats = {
-                new Platrier("Pit", piecesPourPlat),
-                new Platrier("Pet", piecesPourPlat)
-        };
+        Platrier p1 = new Platrier("Pit", aPlatrer, s);
+        Platrier p2 = new Platrier("Pet", aPlatrer, s);
 
-        for (Electricien e : elecs) e.start();
-        for (Platrier p : plats) p.start();
+        e1.start(); e2.start(); e3.start();
+        p1.start(); p2.start();
 
-        for (Electricien e : elecs) e.join();
-        for (Platrier p : plats) p.join();
+        e1.join(); e2.join(); e3.join();
+        p1.join(); p2.join();
 
+        TestChantier.lancerTests(maisonComplete);
         System.out.println("La maison est terminée");
     }
 }

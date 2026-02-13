@@ -1,11 +1,14 @@
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class Platrier extends Thread {
-    private List<Piece> piecesAPlatrer;
+    private List<Piece> pieces;
+    private Semaphore s;
 
-    public Platrier(String nom, List<Piece> pieces) {
+    public Platrier(String nom, List<Piece> pieces, Semaphore s) {
         super(nom);
-        this.piecesAPlatrer = pieces;
+        this.pieces = pieces;
+        this.s = s;
     }
 
     @Override
@@ -13,12 +16,11 @@ public class Platrier extends Thread {
         try {
             while (true) {
                 Piece p;
-                synchronized (piecesAPlatrer) {
-                    if (piecesAPlatrer.isEmpty()) break;
-                    p = piecesAPlatrer.remove(0);
+                synchronized (pieces) {
+                    if (pieces.isEmpty()) break;
+                    p = pieces.remove(0);
                 }
 
-                // Attente spécifique à la pièce
                 p.attendreElectricite();
 
                 System.out.println("Platrier " + getName() + " commence : " + p.getNom());
@@ -26,6 +28,8 @@ public class Platrier extends Thread {
                 p.platrer();
                 System.out.println("Platrier " + getName() + " termine : " + p.getNom());
             }
-        } catch (InterruptedException e) { e.printStackTrace(); }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
