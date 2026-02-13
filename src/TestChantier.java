@@ -27,8 +27,20 @@ public class TestChantier {
             System.out.println("FIN TEST 1 : État des pièces vérifié.\n");
 
             System.out.println("TEST 2 : Vérification que les électriciens et plâtriers n'ont pas travaillé simultanément dans la même pièce");
-            System.out.println("  > Aucun conflit d'occupation détecté durant le chantier.");
-            System.out.println("FIN TEST 2 : Ils travaillent bien individuellement dans chaque pièce.\n");
+            boolean conflitDetecte = false;
+
+            for (Piece p : maison) {
+                if (p.getOccupants() != 0) {
+                    System.err.println("  > ERREUR : La pièce " + p.getNom() + " a un compteur d'occupation invalide : " + p.getOccupants());
+                    conflitDetecte = true;
+                }
+            }
+
+            if (!conflitDetecte) {
+                System.out.println("  > SUCCÈS : Aucun ouvrier ne s'est retrouvé en collision avec un autre.");
+            } else {
+                System.err.println("  > ÉCHEC : Des accès concurrents non protégés ont été détectés.");
+            }            System.out.println("FIN TEST 2 : Ils travaillent bien individuellement dans chaque pièce.\n");
 
             System.out.println("\nTEST 3 : Vérification de la chronologie : Électricien -> Plâtrier");
             boolean ordreRespecte = true;
