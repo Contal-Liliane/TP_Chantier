@@ -1,21 +1,27 @@
+import java.util.List;
+
 public class Electricien extends Thread {
+    private List<Piece> pieces;
 
-    public Electricien(String nom) {
+    public Electricien(String nom, List<Piece> pieces) {
         super(nom);
-    }
-
-    public void travailler() {
-        try {
-            System.out.println(getName() + " (Électricien) : je commence à travailler");
-            Thread.sleep(5000);
-            System.out.println(getName() + " (Électricien) : j'ai fini mon travail");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.pieces = pieces;
     }
 
     @Override
     public void run() {
-        travailler();
+        try {
+            while (true) {
+                Piece p;
+                synchronized (pieces) {
+                    if (pieces.isEmpty()) break;
+                    p = pieces.remove(0);
+                }
+                System.out.println("Electricien " + getName() + " commence : " + p.getNom());
+                Thread.sleep(5000);
+                p.electrifier(); // Libère le verrou pour cette pièce
+                System.out.println("Electricien " + getName() + " termine : " + p.getNom());
+            }
+        } catch (InterruptedException e) { e.printStackTrace(); }
     }
 }
